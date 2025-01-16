@@ -1,0 +1,994 @@
+<!DOCTYPE html>
+<html lang="en" class="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title data-en="Content Creator Studio – YouTube Only" data-uk="Контент-Студія для YouTube">Content Creator Studio – YouTube Only</title>
+  <!-- TailwindCSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+
+  <style>
+    .preview-phone {
+      width: 375px;
+      height: 812px;
+      border-radius: 40px;
+      padding: 20px;
+      background: #f5f5f5;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+    }
+    .border-invalid {
+      border-color: #dc2626 !important; /* red-600 in Tailwind */
+    }
+    .animate-slide-down {
+      animation: slideDown 0.3s ease-out;
+    }
+    @keyframes slideDown {
+      from { transform: translateY(-10px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+  </style>
+</head>
+
+<body class="min-h-screen bg-gradient-to-br from-purple-50 to-pink-50 transition-colors duration-200">
+
+  <!-- Navbar -->
+  <nav class="w-full p-6 mb-8 bg-white border-b border-gray-200 shadow-sm">
+    <div class="max-w-7xl mx-auto flex items-center justify-between">
+      <!-- Branding -->
+      <div class="flex items-center space-x-3">
+        <div class="p-3 bg-purple-100 rounded-xl">
+          <i data-lucide="video" class="text-purple-700 w-6 h-6"></i>
+        </div>
+        <h1
+          class="text-2xl font-bold text-gray-800"
+          data-en="Content Creator Studio – YouTube Only"
+          data-uk="Контент-Студія для YouTube">
+          Content Creator Studio – YouTube Only
+        </h1>
+      </div>
+      <!-- Language Select -->
+      <div class="flex items-center space-x-4">
+        <select
+          id="languageSelect"
+          onchange="updateLanguage()"
+          class="p-2 border border-gray-300 rounded-md bg-white text-gray-700 transition">
+          <option value="en">🇬🇧 English</option>
+          <option value="uk">🇺🇦 Українська</option>
+        </select>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Main Layout -->
+  <div class="max-w-7xl mx-auto px-4 lg:px-0">
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+
+      <!-- Left: Form & Tools -->
+      <div class="bg-white rounded-xl shadow-lg p-6 space-y-8">
+        <p class="text-sm text-gray-600"
+           data-en="This version focuses on YouTube Videos & Shorts with brand detection, competitor analysis, automatic thumbnail suggestions, and bilingual output."
+           data-uk="Ця версія зосереджена на відео та шортах YouTube, включає виявлення брендів, аналіз конкурентів, автоматичні пропозиції зображень і двомовний результат.">
+          This version focuses on YouTube Videos & Shorts with brand detection, competitor analysis, automatic thumbnail suggestions, and bilingual output.
+        </p>
+
+        <!-- Heading -->
+        <div class="flex items-center space-x-3">
+          <div class="p-2 bg-purple-100 rounded-md">
+            <i data-lucide="settings" class="w-5 h-5 text-purple-600"></i>
+          </div>
+          <h2 class="text-xl font-semibold text-gray-800"
+              data-en="YouTube Details"
+              data-uk="Налаштування YouTube">
+            YouTube Details
+          </h2>
+        </div>
+
+        <!-- Video Format + Content Categories -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <!-- Format (Video or Shorts) -->
+          <div>
+            <label
+              data-en="YouTube Format"
+              data-uk="Формат на YouTube"
+              class="block text-sm font-medium text-gray-700 mb-1">
+              YouTube Format
+            </label>
+            <select
+              id="youtubeFormatSelect"
+              onchange="saveFormState(); computeScore();"
+              class="w-full p-2 border border-gray-300 rounded-md bg-white text-gray-700 focus:ring-2 focus:ring-purple-400 transition">
+              <option value="video" data-en="YouTube Video" data-uk="Відео на YouTube">YouTube Video</option>
+              <option value="shorts" data-en="YouTube Shorts" data-uk="YouTube Шорти">YouTube Shorts</option>
+            </select>
+          </div>
+          <!-- Categories (multi) -->
+          <div>
+            <label
+              data-en="Content Categories (Multi-select)"
+              data-uk="Категорії контенту (кілька)"
+              class="block text-sm font-medium text-gray-700 mb-1">
+              Content Categories (Multi-select)
+            </label>
+            <p class="text-xs text-gray-500 mb-1" data-en="(e.g. 'Beauty + Blog + Vlog')" data-uk="(наприклад, 'Beauty + Blog + Vlog')">
+              (e.g. "Beauty + Blog + Vlog")
+            </p>
+            <select
+              id="categoriesSelect"
+              multiple
+              size="7"
+              onchange="handleCategoryChange(); saveFormState(); computeScore();"
+              class="w-full p-2 border border-gray-300 rounded-md bg-white text-gray-700 focus:ring-2 focus:ring-purple-400 transition">
+              <option value="beauty" data-en="Beauty" data-uk="Краса">Beauty</option>
+              <option value="vlog" data-en="Vlog" data-uk="Влог">Vlog</option>
+              <option value="blog" data-en="Blog" data-uk="Блог">Blog</option>
+              <option value="fashion" data-en="Fashion" data-uk="Мода">Fashion</option>
+              <option value="shopping" data-en="Shopping" data-uk="Шопінг">Shopping</option>
+              <option value="entertainment" data-en="Entertainment" data-uk="Розваги">Entertainment</option>
+              <option value="health" data-en="Health" data-uk="Здоров'я">Health</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Season/Event -->
+        <div>
+          <label
+            data-en="Season/Event"
+            data-uk="Сезон/Подія"
+            class="block text-sm font-medium text-gray-700 mb-1">
+            Season/Event
+          </label>
+          <select
+            id="seasonalEvent"
+            onchange="saveFormState(); computeScore();"
+            class="w-full p-2 border border-gray-300 rounded-md bg-white text-gray-700 focus:ring-2 focus:ring-purple-400 transition">
+            <option value="none" data-en="None / Немає" data-uk="Немає">None / Немає</option>
+            <optgroup data-en="⭐ Holidays" data-uk="⭐ Свята">
+              <option value="christmas">🎄 Christmas / Різдво</option>
+              <option value="newyear">🎉 New Year / Новий рік</option>
+              <option value="easter">🥚 Easter / Великдень</option>
+              <option value="halloween">🎃 Halloween / Хелловін</option>
+            </optgroup>
+            <optgroup data-en="🌈 Seasons" data-uk="🌈 Сезони">
+              <option value="spring">🌸 Spring / Весна</option>
+              <option value="summer">☀️ Summer / Літо</option>
+              <option value="autumn">🍂 Autumn / Осінь</option>
+              <option value="winter">❄️ Winter / Зима</option>
+            </optgroup>
+          </select>
+        </div>
+
+        <!-- Video Title -->
+        <div>
+          <label
+            data-en="Video Title"
+            data-uk="Назва відео"
+            class="block text-sm font-medium text-gray-700 mb-1">
+            Video Title
+          </label>
+          <textarea
+            id="videoTitle"
+            oninput="handleTitleInput(this); computeScore(); saveFormState();"
+            rows="2"
+            class="w-full p-3 border border-gray-300 rounded-md bg-white text-gray-700 focus:ring-2 focus:ring-purple-400 transition"
+            data-en="Enter your video title"
+            data-uk="Введіть назву вашого відео"
+            placeholder="Enter your video title"></textarea>
+          <div class="mt-1 text-sm text-gray-500 flex justify-between">
+            <span><span id="titleCount">0</span>/70</span>
+            <span id="brandDetected" class="hidden text-purple-600 text-xs">✨ Brand(s) detected</span>
+          </div>
+        </div>
+
+        <!-- Location (for Vlog) -->
+        <div id="locationSection" class="hidden animate-slide-down">
+          <label
+            data-en="Location (for Vlogs)"
+            data-uk="Локація (для влогів)"
+            class="block text-sm font-medium text-gray-700 mb-1">
+            Location (for Vlogs)
+          </label>
+          <select
+            id="location"
+            onchange="saveFormState(); computeScore();"
+            class="w-full p-2 border border-gray-300 rounded-md bg-white text-gray-700 focus:ring-2 focus:ring-purple-400 transition">
+            <optgroup label="🇺🇦 Ukraine / Україна">
+              <option value="kyiv">Kyiv / Київ</option>
+              <option value="lviv">Lviv / Львів</option>
+              <option value="odesa">Odesa / Одеса</option>
+              <option value="kharkiv">Kharkiv / Харків</option>
+            </optgroup>
+            <optgroup label="🌍 Europe / Європа">
+              <option value="london">London / Лондон</option>
+              <option value="paris">Paris / Париж</option>
+              <option value="rome">Rome / Рим</option>
+              <option value="berlin">Berlin / Берлін</option>
+            </optgroup>
+          </select>
+        </div>
+
+        <!-- Key Points -->
+        <div>
+          <label
+            data-en="Key Points"
+            data-uk="Ключові моменти"
+            class="block text-sm font-medium text-gray-700 mb-1">
+            Key Points
+          </label>
+          <textarea
+            id="keyPoints"
+            rows="4"
+            oninput="saveFormState(); computeScore();"
+            class="w-full p-3 border border-gray-300 rounded-md bg-white text-gray-700 focus:ring-2 focus:ring-purple-400 transition"
+            data-en="1) Introduction
+2) Highlights or step-by-step tips
+3) Conclusion"
+            data-uk="1) Вступ
+2) Основні моменти або покрокові поради
+3) Висновки"
+            placeholder="1) Introduction
+2) Highlights or step-by-step tips
+3) Conclusion"></textarea>
+        </div>
+
+        <!-- Links (Optional) -->
+        <div>
+          <label
+            data-en="Links (Optional)"
+            data-uk="Посилання (необов'язково)"
+            class="block text-sm font-medium text-gray-700 mb-1">
+            Links (Optional)
+          </label>
+          <textarea
+            id="links"
+            rows="3"
+            oninput="saveFormState();"
+            class="w-full p-3 border border-gray-300 rounded-md bg-white text-gray-700 focus:ring-2 focus:ring-purple-400 transition"
+            data-en="http://example.com"
+            data-uk="http://приклад.com"
+            placeholder="http://example.com"></textarea>
+        </div>
+
+        <!-- Competitor Analysis -->
+        <div>
+          <label
+            data-en="Competitor Channels / Video Titles"
+            data-uk="Канали чи відео конкурентів"
+            class="block text-sm font-medium text-gray-700 mb-1">
+            Competitor Channels / Video Titles
+          </label>
+          <p class="text-xs text-gray-500 mb-2"
+             data-en="Paste competitor channels or popular YouTube video titles to see suggested trending keywords."
+             data-uk="Вставте канали чи популярні назви відео конкурентів, щоб побачити рекомендовані трендові ключові слова.">
+            Paste competitor channels or popular YouTube video titles to see suggested trending keywords.
+          </p>
+          <textarea
+            id="competitorData"
+            rows="3"
+            oninput="saveFormState();"
+            class="w-full p-3 border border-gray-300 rounded-md bg-white text-gray-700 focus:ring-2 focus:ring-purple-400 transition"
+            data-en="Channel X, Best Video Title of 2025, ..."
+            data-uk="Канал X, Найкраща назва відео 2025, ..."
+            placeholder="Channel X, Best Video Title of 2025, ..."></textarea>
+          <button
+            type="button"
+            data-en="Analyze Competitors"
+            data-uk="Аналіз конкурентів"
+            onclick="analyzeCompetitors()"
+            class="mt-2 w-full p-2 bg-gray-100 text-gray-700 rounded hover:bg-gray-200 transition">
+            Analyze Competitors
+          </button>
+          <ul id="competitorSuggestions" class="mt-2 list-disc list-inside text-xs text-gray-600"></ul>
+        </div>
+
+        <!-- Generate Button -->
+        <button
+          onclick="generateContent()"
+          class="w-full px-4 py-3 rounded-md bg-gradient-to-r from-purple-600 to-pink-600 text-white font-semibold hover:from-purple-700 hover:to-pink-700 transition-all"
+          data-en="Generate Content"
+          data-uk="Згенерувати контент">
+          Generate Content
+        </button>
+      </div>
+
+      <!-- Right: Preview & SEO Suggestions -->
+      <div class="space-y-6">
+        <!-- Preview Card -->
+        <div class="bg-white rounded-xl shadow-lg p-6">
+          <div class="flex items-center space-x-3 mb-4">
+            <div class="p-2 bg-purple-100 rounded-md">
+              <i data-lucide="smartphone" class="w-5 h-5 text-purple-600"></i>
+            </div>
+            <h2 class="text-xl font-semibold text-gray-800"
+                data-en="Preview"
+                data-uk="Попередній перегляд">
+              Preview
+            </h2>
+          </div>
+          <div class="preview-phone overflow-hidden bg-white">
+            <div class="h-full overflow-y-auto p-4">
+              <div id="previewContent" class="space-y-4">
+                <div id="previewTitle" class="text-xl font-bold"></div>
+                <div
+                  id="previewDescription"
+                  class="text-gray-600 whitespace-pre-wrap"></div>
+                <div
+                  id="previewHashtags"
+                  class="text-blue-500 break-words"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Copy + SEO Suggestions + Thumbnail Ideas -->
+        <div class="bg-white rounded-xl shadow-lg p-6 space-y-4">
+          <button
+            onclick="copyGeneratedContent()"
+            class="w-full p-3 rounded-md bg-gray-100 text-gray-700 hover:bg-gray-200 transition"
+            data-en="Copy Content"
+            data-uk="Скопіювати контент">
+            Copy Content
+          </button>
+
+          <!-- SEO Score & Suggestions -->
+          <div class="border-t pt-4 text-gray-700 text-sm space-y-4">
+            <div class="flex items-center justify-between">
+              <span class="font-semibold"
+                    data-en="SEO Score"
+                    data-uk="SEO Оцінка">
+                SEO Score
+              </span>
+              <span id="seoScoreText" class="text-green-600">0</span>
+            </div>
+            <ul id="seoSuggestions" class="list-disc list-inside text-xs text-gray-600 space-y-1">
+              <!-- Dynamic SEO tips go here -->
+            </ul>
+            <!-- Keyword Density Info -->
+            <div id="keywordDensityInfo" class="text-xs text-gray-600"></div>
+          </div>
+
+          <!-- Automatic Thumbnail Suggestions -->
+          <div class="border-t pt-4">
+            <button
+              type="button"
+              onclick="generateThumbnailSuggestions()"
+              class="w-full p-2 bg-gray-100 text-gray-700 rounded hover:bg-gray-200 transition mb-2"
+              data-en="Get Thumbnail Ideas"
+              data-uk="Отримати ідеї мініатюр">
+              Get Thumbnail Ideas
+            </button>
+            <ul id="thumbnailIdeas" class="list-disc list-inside text-xs text-gray-600"></ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Main Suggestions for YouTube Videos & Shorts -->
+    <div class="mt-8 bg-white rounded-xl p-6 shadow-lg">
+      <h3 class="text-xl font-semibold text-gray-800 mb-4"
+          data-en="Best Practices for YouTube Videos & Shorts"
+          data-uk="Найкращі практики для відео та шортів на YouTube">
+        Best Practices for YouTube Videos & Shorts
+      </h3>
+      <ul class="list-disc list-inside text-sm text-gray-700 space-y-2">
+        <li data-en="Hook viewers within the first 5 seconds with a strong visual or question."
+            data-uk="Зацікавте глядачів у перші 5 секунд за допомогою яскравого візуалу або питання.">
+          Hook viewers within the first 5 seconds with a strong visual or question.
+        </li>
+        <li data-en="Optimize titles to be direct, clear, and under 70 chars."
+            data-uk="Оптимізуйте заголовки, щоб вони були чіткими й коротшими за 70 символів.">
+          Optimize titles to be direct, clear, and under 70 chars.
+        </li>
+        <li data-en="Use relevant hashtags (like #Shorts) to help visibility."
+            data-uk="Використовуйте актуальні хештеги (напр. #Shorts) для кращої видимості.">
+          Use relevant hashtags (like #Shorts) to help visibility.
+        </li>
+        <li data-en="Include calls to action ('Like, subscribe, and comment below!')."
+            data-uk="Додайте заклики до дії («Поставте лайк, підпишіться та коментуйте!»).">
+          Include calls to action (“Like, subscribe, and comment below!”).
+        </li>
+        <li data-en="End screens and pinned comments can guide viewers to more videos."
+            data-uk="Використовуйте кінцеві заставки та закріплені коментарі, щоб перенаправляти глядачів на інші відео.">
+          End screens and pinned comments can guide viewers to more videos.
+        </li>
+        <li data-en="Consistent posting schedule builds audience expectation and loyalty."
+            data-uk="Регулярний графік публікацій формує очікування й лояльність аудиторії.">
+          Consistent posting schedule builds audience expectation and loyalty.
+        </li>
+        <li data-en="Check competitor videos for trending topics or tags you can adapt."
+            data-uk="Переглядайте відео конкурентів, щоб дізнатись про трендові теми та теги.">
+          Check competitor videos for trending topics or tags you can adapt.
+        </li>
+        <li data-en="Engage with your community through comments, Q&A, or polls."
+            data-uk="Взаємодійте зі спільнотою через коментарі, Q&A чи опитування.">
+          Engage with your community through comments, Q&A, or polls.
+        </li>
+        <li data-en="Subtle branding in thumbnails or intros can make your channel memorable."
+            data-uk="Непомітний брендинг у мініатюрі чи інтро може зробити канал упізнаваним.">
+          Subtle branding in thumbnails or intros can make your channel memorable.
+        </li>
+        <li data-en="Analyze watch time and audience retention to refine future content."
+            data-uk="Аналізуйте час перегляду та утримання аудиторії, щоб покращити майбутній контент.">
+          Analyze watch time and audience retention to refine future content.
+        </li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- Script Logic -->
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      lucide.createIcons();
+      loadFormState();
+      computeScore();
+      handleCategoryChange();
+      updateLanguage(); // Initialize UI language
+    });
+
+    let currentLang = 'en';
+    let detectedBrands = [];
+
+    /* ====================== Language Handling ======================= */
+    function updateLanguage() {
+      currentLang = document.getElementById('languageSelect').value;
+
+      // For each element with data-en/data-uk, switch text
+      document.querySelectorAll('[data-en]').forEach(el => {
+        const text = el.getAttribute(`data-${currentLang}`);
+        if (text) {
+          el.textContent = text;
+        }
+      });
+
+      // Also switch placeholders for textareas, if any
+      document.querySelectorAll('textarea[data-en]').forEach(area => {
+        const placeholderText = area.getAttribute(`data-${currentLang}`);
+        if (placeholderText) {
+          area.placeholder = placeholderText;
+        }
+      });
+
+      // Title tag also
+      const docTitle = document.querySelector('title');
+      const newTitle = docTitle.getAttribute(`data-${currentLang}`);
+      if (newTitle) {
+        document.title = newTitle;
+      }
+
+      // If there's content in the preview, re-generate to update language text
+      if (document.getElementById('previewTitle').innerText.trim()) {
+        generateContent();
+      }
+    }
+
+    /* ====================== Category & Location ======================= */
+    function getSelectedCategories() {
+      const selectEl = document.getElementById('categoriesSelect');
+      return Array.from(selectEl.selectedOptions).map(opt => opt.value);
+    }
+    function handleCategoryChange() {
+      const categories = getSelectedCategories();
+      const locationSection = document.getElementById('locationSection');
+      // Show location only if "vlog" selected
+      locationSection.classList.toggle('hidden', !categories.includes('vlog'));
+    }
+
+    /* ====================== Brand Detection ======================= */
+    function handleTitleInput(el) {
+      const count = el.value.length;
+      document.getElementById('titleCount').textContent = count;
+      detectedBrands = detectBrands(el.value);
+      document.getElementById('brandDetected').classList.toggle('hidden', detectedBrands.length === 0);
+    }
+
+    function detectBrands(text) {
+      const brandDB = [
+        "sephora","charlotte tilbury","ziaja","fortnum & mason",
+        "loreal","cerave","fenty","glossier","urban decay",
+        "essence","clinique","maybelline","mac","gordon ramsay",
+        "instytutum","bioderma","heimish","biologique recherche","dmk"
+      ];
+      const normalized = text.toLowerCase();
+      const found = [];
+      brandDB.forEach(b => {
+        if (normalized.includes(b.toLowerCase())) {
+          found.push(b);
+        }
+      });
+      return found;
+    }
+
+    /* ====================== Competitor Analysis ======================= */
+    function analyzeCompetitors() {
+      const competitorInput = document.getElementById('competitorData').value.toLowerCase();
+      const suggestionEl = document.getElementById('competitorSuggestions');
+      suggestionEl.innerHTML = '';
+
+      if (!competitorInput) {
+        const li = document.createElement('li');
+        li.textContent = currentLang === 'uk'
+          ? "Дані про конкурентів відсутні."
+          : "No competitor data provided.";
+        suggestionEl.appendChild(li);
+        return;
+      }
+
+      // Basic approach: check if user references popular phrases
+      const trendingKeywords = ["trend", "2025", "viral", "makeup", "advent", "unboxing"];
+      const foundInCompetitors = [];
+      trendingKeywords.forEach(k => {
+        if (competitorInput.includes(k)) {
+          foundInCompetitors.push(k);
+        }
+      });
+      if (foundInCompetitors.length) {
+        const li = document.createElement('li');
+        li.textContent = currentLang === 'uk'
+          ? `У конкурентів помічені [${foundInCompetitors.join(', ')}]. Використайте ці теми, щоб виділитись.`
+          : `Competitors use [${foundInCompetitors.join(', ')}]. Consider referencing these to stand out.`;
+        suggestionEl.appendChild(li);
+      } else {
+        const li = document.createElement('li');
+        li.textContent = currentLang === 'uk'
+          ? "Немає очевидних трендових ключових слів. Спробуйте «вірусне», «mustwatch», «bestof»."
+          : "No major trending keywords detected. Try 'viral', 'mustwatch', 'bestof'.";
+        suggestionEl.appendChild(li);
+      }
+    }
+
+    /* ====================== Generate Final Content ======================= */
+    function generateContent() {
+      if (!validateForm()) {
+        alert(currentLang === 'uk'
+          ? "Виправте помилки у заголовку чи посиланнях."
+          : "Please fix highlighted fields (title, invalid links, etc.).");
+        return;
+      }
+      // Clear old preview
+      document.getElementById('previewTitle').innerText = '';
+      document.getElementById('previewDescription').innerText = '';
+      document.getElementById('previewHashtags').innerText = '';
+
+      const title = document.getElementById('videoTitle').value.trim();
+      const descBoth = generateBilingualDescription(title);
+      const hashtagsBoth = generateHashtagsForYouTube();
+
+      // Update preview
+      document.getElementById('previewTitle').innerText = title;
+      document.getElementById('previewDescription').innerText = descBoth;
+      document.getElementById('previewHashtags').innerText = hashtagsBoth;
+
+      computeScore();
+      analyzeKeywordDensity();
+    }
+
+    /* ====================== BILINGUAL DESCRIPTION ======================= */
+    function generateBilingualDescription(title) {
+      const points = document.getElementById('keyPoints').value.split('\n').filter(x => x.trim());
+      const links = document.getElementById('links').value.split('\n').filter(x => x.trim());
+
+      // EN + UK dictionaries
+      const en = {
+        watchNow: "🎥 Watch Now:",
+        inThisVideo: "🔍 In this video:",
+        usefulLinks: "🔗 Useful Links:",
+        thanks: "👋 Thanks for watching!",
+        subscribe: "🔔 Subscribe for more videos!"
+      };
+      const uk = {
+        watchNow: "🎥 Дивіться зараз:",
+        inThisVideo: "🔍 У цьому відео:",
+        usefulLinks: "🔗 Корисні посилання:",
+        thanks: "👋 Дякую за перегляд!",
+        subscribe: "🔔 Підпишіться, щоб не пропустити нові відео!"
+      };
+
+      const catList = getSelectedCategories();
+      const brandName = detectedBrands.length ? detectedBrands[0] : "";
+      const season = document.getElementById('seasonalEvent').value;
+
+      let descEn = `${en.watchNow}\n${title}\n\nAbout this video:\n` +
+                   `We're covering ${catList.length ? catList.join(", ") : "general topics"}${brandName ? ` and ${brandName}` : ""}` +
+                   `${season !== 'none' ? ` (Season: ${season})` : ""}\n\n`;
+      if (points.length) {
+        descEn += `${en.inThisVideo}\n`;
+        points.forEach((p, i) => {
+          descEn += `${i+1}. ${p}\n`;
+        });
+        descEn += '\n';
+      }
+      if (links.length) {
+        descEn += `${en.usefulLinks}\n`;
+        links.forEach(link => {
+          descEn += `• ${link}\n`;
+        });
+        descEn += '\n';
+      }
+      descEn += `${en.thanks}\n${en.subscribe}`;
+
+      let descUk = `${uk.watchNow}\n${title}\n\nУ цьому відео:\n` +
+                   `Ми розглядаємо ${catList.length ? catList.join(", ") : "різні теми"}${brandName ? ` і ${brandName}` : ""}` +
+                   `${season !== 'none' ? ` (Сезон: ${season})` : ""}\n\n`;
+      if (points.length) {
+        descUk += `${uk.inThisVideo}\n`;
+        points.forEach((p, i) => {
+          descUk += `${i+1}. ${p}\n`;
+        });
+        descUk += '\n';
+      }
+      if (links.length) {
+        descUk += `${uk.usefulLinks}\n`;
+        links.forEach(link => {
+          descUk += `• ${link}\n`;
+        });
+        descUk += '\n';
+      }
+      descUk += `${uk.thanks}\n${uk.subscribe}`;
+
+      return `--- English ---\n${descEn}\n\n--- Українська ---\n${descUk}`;
+    }
+
+    /* ====================== HASHTAG GENERATION for YouTube ======================= */
+    function generateHashtagsForYouTube() {
+      const categories = getSelectedCategories();
+      const season = document.getElementById('seasonalEvent').value;
+      const format = document.getElementById('youtubeFormatSelect').value;
+      const baseEn = [];
+      const baseUk = [];
+
+      // Basic hashtag sets by category
+      const hashtagPools = {
+        beauty: {
+          en: ["beauty","makeup","skincare","viralvideo","trend"],
+          uk: ["краса","макіяж","догляд_за_шкірою","вірусне_відео","тренд"]
+        },
+        vlog: {
+          en: ["vlog","dailyvlog","viralvideo","adventure","traveldiaries"],
+          uk: ["влог","щоденнийвлог","вірусне_відео","пригоди","подорожі"]
+        },
+        blog: {
+          en: ["blog","personal","thoughts","viralvideo","trending"],
+          uk: ["блог","особисте","думки","вірусне_відео","тренди"]
+        },
+        fashion: {
+          en: ["fashion","style","ootd","viralvideo","trendalert"],
+          uk: ["мода","стиль","лукдня","вірусне_відео","тренди"]
+        },
+        shopping: {
+          en: ["shopping","haul","unboxing","recommendations","viralvideo"],
+          uk: ["шопінг","хол","розпакування","рекомендації","вірусне_відео"]
+        },
+        entertainment: {
+          en: ["entertainment","fun","viralvideo","weekendfun","music"],
+          uk: ["розваги","весело","вірусне_відео","вихідні","музика"]
+        },
+        health: {
+          en: ["health","wellness","viralvideo","selfcare","energyboost"],
+          uk: ["здоров'я","самопочуття","вірусне_відео","догляд_за_собою","енергія"]
+        }
+      };
+
+      // Merge from selected categories
+      categories.forEach(cat => {
+        if (hashtagPools[cat]) {
+          baseEn.push(...hashtagPools[cat].en);
+          baseUk.push(...hashtagPools[cat].uk);
+        }
+      });
+
+      // Weighted brand tags
+      detectedBrands.forEach(b => {
+        const brandTag = b.toLowerCase().replace(/\s+/g, '');
+        baseEn.push(brandTag, brandTag); 
+        baseUk.push(brandTag, brandTag);
+      });
+
+      // Vlog location
+      if (categories.includes('vlog')) {
+        const locVal = document.getElementById('location').value.toLowerCase().replace(/\s+/g,'');
+        baseEn.push(locVal);
+        baseUk.push(locVal);
+      }
+
+      // Seasonal weighting
+      if (season !== 'none') {
+        baseEn.push(season, season);
+        baseUk.push(season, season);
+      }
+
+      // Format-specific tags
+      if (format === "shorts") {
+        baseEn.push("shorts","youtubeshorts");
+        baseUk.push("shorts","youtubeshorts");
+      } else {
+        baseEn.push("youtube","youtuber");
+        baseUk.push("youtube","youtuber");
+      }
+
+      // Remove duplicates, shuffle
+      const finalEn = shuffle([...new Set(baseEn)]);
+      const finalUk = shuffle([...new Set(baseUk)]);
+
+      return `--- English ---\n${finalEn.map(x => '#'+x).join(' ')}\n\n--- Українська ---\n${finalUk.map(x => '#'+x).join(' ')}`;
+    }
+
+    function shuffle(a) {
+      for (let i = a.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [a[i], a[j]] = [a[j], a[i]];
+      }
+      return a;
+    }
+
+    /* ====================== SEO Score & Suggestions ======================= */
+    function computeScore() {
+      let score = 0;
+      const suggestions = [];
+
+      const title = document.getElementById('videoTitle').value.trim();
+      const keyPoints = document.getElementById('keyPoints').value.trim();
+      const categories = getSelectedCategories();
+      const brandCount = detectedBrands.length;
+      const season = document.getElementById('seasonalEvent').value;
+      const format = document.getElementById('youtubeFormatSelect').value;
+
+      // Title length
+      if (title.length === 0) {
+        suggestions.push(currentLang === 'uk'
+          ? "Додайте описову назву (30-70 символів)."
+          : "Add a descriptive title (30-70 chars).");
+      } else if (title.length < 30) {
+        suggestions.push(currentLang === 'uk'
+          ? "Назва надто коротка, спробуйте додати більше деталей чи ключових слів."
+          : "Title is quite short, consider adding more detail or keywords.");
+      } else if (title.length > 70) {
+        suggestions.push(currentLang === 'uk'
+          ? "Назва занадто довга, скоротіть до 70 символів."
+          : "Title is too long, keep it under 70 chars for best visibility.");
+      } else {
+        score += 30;
+      }
+
+      // Key points
+      if (!keyPoints) {
+        suggestions.push(currentLang === 'uk'
+          ? "Додайте кілька основних пунктів, щоб структурувати свій контент."
+          : "Include a few key points to structure your content.");
+      } else {
+        score += 20;
+      }
+
+      // Brand
+      if (brandCount > 0) {
+        score += 10;
+      } else {
+        suggestions.push(currentLang === 'uk'
+          ? "Згадайте релевантний бренд або продукт, якщо можливо, для збільшення пошукового потенціалу."
+          : "Mention a relevant brand or product if possible to increase search potential.");
+      }
+
+      // Multiple categories synergy
+      if (categories.length > 1) {
+        score += 10;
+      } else {
+        suggestions.push(currentLang === 'uk'
+          ? "Використовуйте декілька категорій (напр. Beauty + Vlog), щоб розширити аудиторію."
+          : "Combine multiple categories (e.g., Beauty + Vlog) for broader reach.");
+      }
+
+      // Season
+      if (season !== 'none') {
+        score += 10;
+      } else {
+        suggestions.push(currentLang === 'uk'
+          ? "Додайте сезон/подію, якщо це доречно (напр. Різдво)."
+          : "Leverage a season/event if relevant (e.g. Christmas).");
+      }
+
+      // Vlog location
+      if (categories.includes('vlog')) {
+        const locHidden = document.getElementById('locationSection').classList.contains('hidden');
+        if (!locHidden) {
+          score += 10;
+        } else {
+          suggestions.push(currentLang === 'uk'
+            ? "Для влогів вказання локації може залучити місцеву аудиторію."
+            : "For Vlogs, specifying location can increase local interest and trending potential.");
+        }
+      }
+
+      // Shorts or long-form
+      if (format === 'shorts') {
+        score += 10; 
+      } else {
+        score += 5;
+        suggestions.push(currentLang === 'uk'
+          ? "Подумайте про короткий, динамічний контент, якщо ваш формат підходить для шортів YouTube."
+          : "Consider short, snappy content if your topic suits YouTube Shorts.");
+      }
+
+      if (score > 100) score = 100;
+
+      document.getElementById('seoScoreText').textContent = score.toString();
+      renderSuggestions(suggestions);
+    }
+
+    function renderSuggestions(suggestions) {
+      const ul = document.getElementById('seoSuggestions');
+      ul.innerHTML = '';
+      suggestions.forEach(s => {
+        const li = document.createElement('li');
+        li.textContent = s;
+        ul.appendChild(li);
+      });
+    }
+
+    /* ====================== Keyword Density ======================= */
+    function analyzeKeywordDensity() {
+      const text = (document.getElementById('videoTitle').value + ' ' + 
+                    document.getElementById('keyPoints').value).toLowerCase();
+      const words = text.split(/\s+/).filter(x => x);
+      const freq = {};
+      words.forEach(w => {
+        if (!freq[w]) freq[w] = 0;
+        freq[w]++;
+      });
+
+      const entries = Object.entries(freq).sort((a, b) => b[1] - a[1]);
+      let info = currentLang === 'uk' ? "Щільність ключових слів:\n" : "Keyword Density:\n";
+      entries.slice(0, 5).forEach(([word, count]) => {
+        info += `${word} – used ${count} time(s)\n`;
+      });
+      document.getElementById('keywordDensityInfo').textContent = info.trim();
+    }
+
+    /* ====================== Automatic Thumbnail Suggestions ======================= */
+    function generateThumbnailSuggestions() {
+      const ideasEl = document.getElementById('thumbnailIdeas');
+      ideasEl.innerHTML = '';
+
+      const categories = getSelectedCategories();
+      const brand = detectedBrands.length ? detectedBrands[0].toLowerCase() : null;
+
+      const baseSuggestions = [
+        currentLang === 'uk'
+          ? "Використовуйте сміливу, контрастну кольорову схему, щоб відразу привернути увагу."
+          : "Use a bold, high-contrast color scheme to draw instant attention.",
+        currentLang === 'uk'
+          ? "Додайте великий, чіткий текст, що відображає основну тему."
+          : "Include a large, readable text overlay summarizing your main topic.",
+        currentLang === 'uk'
+          ? "Зробіть великий план обличчя, щоб показати емоції й справжність."
+          : "Feature a close-up facial expression to emphasize emotion and authenticity.",
+        currentLang === 'uk'
+          ? "Покажіть «до і після», якщо це підходить для вашого контенту."
+          : "Show a ‘before vs. after’ split if relevant to your content.",
+        currentLang === 'uk'
+          ? "Використайте знак питання чи інтригуючий елемент, щоб зацікавити глядача."
+          : "Tease a shocking or surprising element with a big question mark.",
+      ];
+
+      if (brand) {
+        baseSuggestions.push(
+          currentLang === 'uk'
+            ? `Додайте логотип чи елемент дизайну бренду ${brand}, щоб підвищити впізнаваність.`
+            : `Incorporate the ${brand} logo or product design element for brand recognition.`
+        );
+      }
+      if (categories.includes('beauty')) {
+        baseSuggestions.push(
+          currentLang === 'uk'
+            ? "Зробіть чіткий знімок макіяжу чи доглядового продукту при хорошому освітленні."
+            : "Display a clear shot of the featured makeup or skincare product in well-lit detail."
+        );
+      }
+      if (categories.includes('vlog')) {
+        baseSuggestions.push(
+          currentLang === 'uk'
+            ? "Використайте кадр з локацією або найяскравішим моментом дня, щоб зробити мініатюру унікальною."
+            : "Use a snapshot of the location or highlight moment from your day to personalize the thumbnail."
+        );
+      }
+
+      // Shuffle + pick top 3
+      const shuffled = shuffle([...baseSuggestions]);
+      shuffled.slice(0, 3).forEach(sug => {
+        const li = document.createElement('li');
+        li.textContent = sug;
+        ideasEl.appendChild(li);
+      });
+    }
+
+    /* ====================== Copy Function ======================= */
+    function copyGeneratedContent() {
+      const title = document.getElementById('previewTitle').innerText;
+      const description = document.getElementById('previewDescription').innerText;
+      const hashtags = document.getElementById('previewHashtags').innerText;
+      const fullText = `${title}\n\n${description}\n\n${hashtags}`;
+
+      navigator.clipboard.writeText(fullText)
+        .then(() => alert(currentLang === 'uk'
+          ? "Контент скопійовано у буфер обміну!"
+          : "Content copied to clipboard!"))
+        .catch(err => {
+          console.error("Failed to copy: ", err);
+          alert(currentLang === 'uk'
+            ? "Неможливо скопіювати. Скопіюйте вручну."
+            : "Unable to copy. Please select and copy manually.");
+        });
+    }
+
+    /* ====================== Validation ======================= */
+    function validateForm() {
+      resetErrorState();
+      let valid = true;
+      const titleEl = document.getElementById('videoTitle');
+      const tLen = titleEl.value.trim().length;
+      if (tLen === 0 || tLen > 70) {
+        titleEl.classList.add('border-invalid');
+        valid = false;
+      }
+      const linksEl = document.getElementById('links');
+      const lines = linksEl.value.split('\n').filter(x => x.trim());
+      for (const link of lines) {
+        if (!link.startsWith('http')) {
+          linksEl.classList.add('border-invalid');
+          valid = false;
+          break;
+        }
+      }
+      return valid;
+    }
+    function resetErrorState() {
+      ['videoTitle','links'].forEach(id => {
+        document.getElementById(id).classList.remove('border-invalid');
+      });
+    }
+
+    /* ====================== Local Storage ======================= */
+    function saveFormState() {
+      const cats = Array.from(document.getElementById('categoriesSelect').selectedOptions).map(opt => opt.value);
+      const state = {
+        youtubeFormat: document.getElementById('youtubeFormatSelect').value,
+        categories: cats,
+        seasonalEvent: document.getElementById('seasonalEvent').value,
+        videoTitle: document.getElementById('videoTitle').value,
+        location: document.getElementById('location').value,
+        keyPoints: document.getElementById('keyPoints').value,
+        links: document.getElementById('links').value,
+        competitorData: document.getElementById('competitorData').value,
+        uiLanguage: document.getElementById('languageSelect').value
+      };
+      localStorage.setItem('ccsYouTubeOnlyStateBilingual', JSON.stringify(state));
+    }
+    function loadFormState() {
+      const saved = localStorage.getItem('ccsYouTubeOnlyStateBilingual');
+      if (!saved) return;
+      try {
+        const s = JSON.parse(saved);
+
+        document.getElementById('youtubeFormatSelect').value = s.youtubeFormat ?? 'video';
+
+        const selectEl = document.getElementById('categoriesSelect');
+        if (Array.isArray(s.categories)) {
+          Array.from(selectEl.options).forEach(opt => {
+            if (s.categories.includes(opt.value)) {
+              opt.selected = true;
+            }
+          });
+        }
+        document.getElementById('seasonalEvent').value = s.seasonalEvent ?? 'none';
+        document.getElementById('videoTitle').value = s.videoTitle ?? '';
+        document.getElementById('location').value = s.location ?? 'kyiv';
+        document.getElementById('keyPoints').value = s.keyPoints ?? '';
+        document.getElementById('links').value = s.links ?? '';
+        document.getElementById('competitorData').value = s.competitorData ?? '';
+        document.getElementById('languageSelect').value = s.uiLanguage ?? 'en';
+      } catch(e) {
+        console.warn("Error loading YouTube-only bilingual state", e);
+      }
+    }
+  </script>
+</body>
+</html>
